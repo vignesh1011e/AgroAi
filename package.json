@@ -1,0 +1,14 @@
+{
+  "name": "agro-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Agro AI - Smart Farming Platform",
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "start:backend": "npm --prefix backend start",
+    "seed:backend": "npm --prefix backend run seed",
+    "install:all": "npm install --prefix frontend && npm install --prefix backend"
+  }
+}
