@@ -289,4 +289,57 @@ Provide practical, structured agronomic advice with:
   }
 );
 
+// ==========================================
+// VOICE / TEXT-TO-SPEECH (TTS) ENDPOINT
+// ==========================================
+router.get("/tts", async (req, res) => {
+  try {
+    const text = req.query.text;
+    const lang = req.query.language || "English";
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ message: "Text query parameter is required." });
+    }
+
+    let tl = "en";
+    if (lang === "Telugu") tl = "te";
+    else if (lang === "Hindi") tl = "hi";
+
+    const cleanText = text
+      .replace(/\*\*(.*?)\*\*/g, "$1")
+      .replace(/\*(.*?)\*/g, "$1")
+      .replace(/#{1,6}\s+/g, "")
+      .replace(/🌱|🌾|🚜|👨‍🌾|✨|✓|⊞|⚡|💬|🔔|👤|📷|🎙️|🔊|🛑|⚠️|❌|🍅/gu, "")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 200);
+
+    const googleTtsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${tl}&client=tw-ob&q=${encodeURIComponent(
+      cleanText
+    )}`;
+
+    const ttsResponse = await fetch(googleTtsUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      },
+    });
+
+    if (!ttsResponse.ok) {
+      return res.status(ttsResponse.status).json({ message: "TTS engine response error" });
+    }
+
+    const arrayBuffer = await ttsResponse.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    res.setHeader("Content-Type", "audio/mpeg");
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    return res.send(buffer);
+  } catch (err) {
+    console.error("Backend TTS error:", err.message);
+    return res.status(500).json({ message: "Voice generation error: " + err.message });
+  }
+});
+
 module.exports = router;

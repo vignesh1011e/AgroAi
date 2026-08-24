@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { useLanguage } from "../context/useLanguage";
+import logoSvg from "../assets/logo.svg";
 
 function Sidebar({ mobileOpen, setMobileOpen }) {
   const { logout, user } = useAuth();
@@ -88,8 +89,8 @@ function Sidebar({ mobileOpen, setMobileOpen }) {
         {/* Brand Header */}
         <div className="flex h-16 items-center justify-between border-b border-neutral-200/80 px-5 dark:border-neutral-800/80">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-base font-semibold text-emerald-700 shadow-2xs dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400">
-              🌱
+            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-xl border border-emerald-200/80 bg-emerald-50 p-1 shadow-2xs dark:border-emerald-800/80 dark:bg-emerald-950/60">
+              <img src={logoSvg} alt="Agro AI" className="h-full w-full object-contain rounded-lg" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">

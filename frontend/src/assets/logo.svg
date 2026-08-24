@@ -1,45 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="logoBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#064e3b" />
       <stop offset="50%" stop-color="#042f2e" />
       <stop offset="100%" stop-color="#022c22" />
     </linearGradient>
-    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="logoLeafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#34d399" />
       <stop offset="50%" stop-color="#10b981" />
       <stop offset="100%" stop-color="#059669" />
     </linearGradient>
-    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="logoGlowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.8" />
       <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
     </linearGradient>
-    <linearGradient id="aiSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="logoAiSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#a7f3d0" />
       <stop offset="100%" stop-color="#34d399" />
     </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+    <filter id="logoGlow" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="2" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
 
-  <!-- Background App Icon Badge -->
-  <rect width="64" height="64" rx="16" fill="url(#bgGrad)" />
+  <rect width="64" height="64" rx="16" fill="url(#logoBgGrad)" />
   <rect width="62" height="62" x="1" y="1" rx="15" stroke="#10b981" stroke-opacity="0.3" stroke-width="1.5" />
+  <circle cx="32" cy="30" r="16" fill="url(#logoGlowGrad)" />
 
-  <!-- Background Ambient Glow -->
-  <circle cx="32" cy="30" r="16" fill="url(#glowGrad)" />
-
-  <!-- Main Sprout / Leaf Body -->
-  <g filter="url(#glow)">
-    <!-- Right Main Leaf -->
+  <g filter="url(#logoGlow)">
     <path
       d="M32 46C32 46 33.5 35.5 44 32C44 32 46 22 36 17C26 21.5 29.5 35 32 46Z"
-      fill="url(#leafGrad)"
+      fill="url(#logoLeafGrad)"
     />
-
-    <!-- Left Smaller Leaf -->
     <path
       d="M32 46C32 46 30 38 20 36C20 36 17 28 25 23C32.5 27 31 37.5 32 46Z"
       fill="#059669"
@@ -47,42 +40,33 @@
     />
     <path
       d="M32 46C32 46 30 38 20 36C20 36 17 28 25 23C32.5 27 31 37.5 32 46Z"
-      fill="url(#leafGrad)"
+      fill="url(#logoLeafGrad)"
       opacity="0.6"
     />
-
-    <!-- Leaf Vein / Circuit Stem -->
     <path
       d="M32 48V26"
       stroke="#ecfdf5"
       stroke-width="2"
       stroke-linecap="round"
     />
-
-    <!-- AI Neural Branch Left -->
     <path
       d="M32 37L25 32"
       stroke="#a7f3d0"
       stroke-width="1.5"
       stroke-linecap="round"
     />
-    <!-- AI Neural Branch Right -->
     <path
       d="M32 31L39 26"
       stroke="#a7f3d0"
       stroke-width="1.5"
       stroke-linecap="round"
     />
-
-    <!-- Neural / AI Circuit Nodes -->
     <circle cx="25" cy="32" r="2" fill="#ecfdf5" />
     <circle cx="39" cy="26" r="2" fill="#ecfdf5" />
     <circle cx="32" cy="26" r="2.5" fill="#ffffff" />
-    
-    <!-- AI Top Sparkle / Intelligence Star -->
     <path
       d="M44 14L45.2 17.8L49 19L45.2 20.2L44 24L42.8 20.2L39 19L42.8 17.8Z"
-      fill="url(#aiSparkGrad)"
+      fill="url(#logoAiSparkGrad)"
     />
     <circle cx="44" cy="19" r="1" fill="#ffffff" />
   </g>

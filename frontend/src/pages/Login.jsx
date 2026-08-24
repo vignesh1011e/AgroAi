@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import farmBanner from "../assets/farm-banner.jpg";
+import logoSvg from "../assets/logo.svg";
 
 function Login() {
   const navigate = useNavigate();
@@ -58,8 +59,8 @@ function Login() {
 
         {/* Top Branding */}
         <div className="relative z-10 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md text-xl shadow-lg">
-            🌱
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white/10 p-1 backdrop-blur-md shadow-lg">
+            <img src={logoSvg} alt="Agro AI" className="h-full w-full object-contain rounded-xl" />
           </div>
           <div>
             <h2 className="text-base font-bold tracking-tight text-white">
@@ -113,8 +114,8 @@ function Login() {
         <div className="mx-auto w-full max-w-sm space-y-8 animate-fade-up">
           {/* Mobile Header Logo */}
           <div className="flex items-center gap-2.5 lg:hidden mb-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-base dark:border-emerald-800 dark:bg-emerald-950">
-              🌱
+            <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50 p-1 dark:border-emerald-800 dark:bg-emerald-950">
+              <img src={logoSvg} alt="Agro AI" className="h-full w-full object-contain rounded-lg" />
             </div>
             <span className="text-base font-bold text-neutral-950 dark:text-white">
               Agro AI
