@@ -29,6 +29,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const listingRoutes = require("./routes/listingRoutes");
+const produceRoutes = require("./routes/produceRoutes");
 
 const path = require("path");
 
@@ -90,6 +91,7 @@ app.use(
 );
 
 app.use("/api/listings", listingRoutes);
+app.use("/api/produce", produceRoutes);
 
 // ==========================================
 // BASIC TEST ROUTE

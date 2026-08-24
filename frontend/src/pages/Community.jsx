@@ -156,7 +156,7 @@ function Community() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={`Message farmers in ${region}...`}
-            className="flex-1 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-xs text-neutral-900 outline-none transition focus:border-neutral-950 focus:bg-white dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:focus:border-white"
+            className="flex-1 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-xs text-neutral-900 outline-none transition focus:border-neutral-950 focus:bg-white dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:focus:border-white dark:focus:bg-neutral-800"
           />
           <button
             type="submit"

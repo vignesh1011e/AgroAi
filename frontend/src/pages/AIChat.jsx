@@ -959,13 +959,13 @@ function AIChat() {
                   : "Ask Agro AI about crops, fertilizers, pest control (or click mic)..."
               }
               disabled={loading}
-              className="flex-1 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-xs text-neutral-900 outline-none transition focus:border-emerald-600 focus:bg-white dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:focus:border-emerald-400"
+              className="flex-1 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-xs text-neutral-900 placeholder:text-neutral-400 outline-none transition focus:border-emerald-600 focus:bg-white dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 dark:focus:border-emerald-400 dark:focus:bg-neutral-800"
             />
 
             <button
               type="submit"
               disabled={loading || (!input.trim() && !selectedImage)}
-              className="flex h-10 items-center justify-center rounded-xl bg-emerald-600 px-4 text-xs font-semibold text-white shadow-xs transition hover:bg-emerald-700 disabled:opacity-40 dark:bg-emerald-500 dark:text-neutral-950 dark:hover:bg-emerald-400 cursor-pointer"
+              className="flex h-10 items-center justify-center rounded-xl bg-emerald-600 px-4 text-xs font-semibold text-white shadow-xs transition hover:bg-emerald-700 disabled:opacity-40 dark:bg-emerald-600 dark:text-white dark:hover:bg-emerald-500 dark:disabled:opacity-30 cursor-pointer"
             >
               {loading ? "..." : "Send"}
             </button>

@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import AIChat from "./pages/AIChat";
 import Community from "./pages/Community";
 import MarketPlace from "./pages/MarketPlace";
+import FarmerDirect from "./pages/FarmerDirect";
 import Weather from "./pages/Weather";
 import Profile from "./pages/Profile";
 import Calculators from "./pages/Calculators";
@@ -25,6 +26,7 @@ function App() {
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/ai-chat" element={<AIChat />} />
+        <Route path="/farmer-direct" element={<FarmerDirect />} />
         <Route path="/marketplace" element={<MarketPlace />} />
         <Route path="/weather" element={<Weather />} />
         <Route path="/activities" element={<Activities />} />
