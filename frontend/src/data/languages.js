@@ -1,0 +1,160 @@
+export const LANGUAGES = [
+  {
+    key: "English",
+    label: "English",
+    englishName: "English",
+    flag: "🇬🇧",
+    short: "EN",
+    ttsCode: "en",
+    speechCode: "en-IN",
+    region: "Pan-India / Global",
+  },
+  {
+    key: "Hindi",
+    label: "हिन्दी",
+    englishName: "Hindi",
+    flag: "🇮🇳",
+    short: "HI",
+    ttsCode: "hi",
+    speechCode: "hi-IN",
+    region: "North & Central India",
+    scriptRegex: /[\u0900-\u097F]/g,
+  },
+  {
+    key: "Telugu",
+    label: "తెలుగు",
+    englishName: "Telugu",
+    flag: "🇮🇳",
+    short: "TE",
+    ttsCode: "te",
+    speechCode: "te-IN",
+    region: "Andhra Pradesh & Telangana",
+    scriptRegex: /[\u0C00-\u0C7F]/g,
+  },
+  {
+    key: "Tamil",
+    label: "தமிழ்",
+    englishName: "Tamil",
+    flag: "🇮🇳",
+    short: "TA",
+    ttsCode: "ta",
+    speechCode: "ta-IN",
+    region: "Tamil Nadu & Puducherry",
+    scriptRegex: /[\u0B80-\u0BFF]/g,
+  },
+  {
+    key: "Kannada",
+    label: "ಕನ್ನಡ",
+    englishName: "Kannada",
+    flag: "🇮🇳",
+    short: "KN",
+    ttsCode: "kn",
+    speechCode: "kn-IN",
+    region: "Karnataka",
+    scriptRegex: /[\u0C80-\u0CFF]/g,
+  },
+  {
+    key: "Malayalam",
+    label: "മലയാളം",
+    englishName: "Malayalam",
+    flag: "🇮🇳",
+    short: "ML",
+    ttsCode: "ml",
+    speechCode: "ml-IN",
+    region: "Kerala",
+    scriptRegex: /[\u0D00-\u0D7F]/g,
+  },
+  {
+    key: "Marathi",
+    label: "मराठी",
+    englishName: "Marathi",
+    flag: "🇮🇳",
+    short: "MR",
+    ttsCode: "mr",
+    speechCode: "mr-IN",
+    region: "Maharashtra",
+    scriptRegex: /[\u0900-\u097F]/g,
+  },
+  {
+    key: "Gujarati",
+    label: "ગુજરાતી",
+    englishName: "Gujarati",
+    flag: "🇮🇳",
+    short: "GU",
+    ttsCode: "gu",
+    speechCode: "gu-IN",
+    region: "Gujarat",
+    scriptRegex: /[\u0A80-\u0AFF]/g,
+  },
+  {
+    key: "Bengali",
+    label: "বাংলা",
+    englishName: "Bengali",
+    flag: "🇮🇳",
+    short: "BN",
+    ttsCode: "bn",
+    speechCode: "bn-IN",
+    region: "West Bengal & Tripura",
+    scriptRegex: /[\u0980-\u09FF]/g,
+  },
+  {
+    key: "Punjabi",
+    label: "ਪੰਜਾਬੀ",
+    englishName: "Punjabi",
+    flag: "🇮🇳",
+    short: "PA",
+    ttsCode: "pa",
+    speechCode: "pa-IN",
+    region: "Punjab & Haryana",
+    scriptRegex: /[\u0A00-\u0A7F]/g,
+  },
+  {
+    key: "Odia",
+    label: "ଓଡ଼ିଆ",
+    englishName: "Odia",
+    flag: "🇮🇳",
+    short: "OR",
+    ttsCode: "or",
+    speechCode: "or-IN",
+    region: "Odisha",
+    scriptRegex: /[\u0B00-\u0B7F]/g,
+  },
+  {
+    key: "Assamese",
+    label: "অসমীয়া",
+    englishName: "Assamese",
+    flag: "🇮🇳",
+    short: "AS",
+    ttsCode: "as",
+    speechCode: "as-IN",
+    region: "Assam",
+    scriptRegex: /[\u0980-\u09FF]/g,
+  },
+  {
+    key: "Urdu",
+    label: "اردو",
+    englishName: "Urdu",
+    flag: "🇮🇳",
+    short: "UR",
+    ttsCode: "ur",
+    speechCode: "ur-IN",
+    region: "Pan-India",
+    scriptRegex: /[\u0600-\u06FF]/g,
+  },
+];
+
+export const SUPPORTED_LANGUAGES = LANGUAGES.map((l) => l.key);
+
+export const getLanguageConfig = (key) => {
+  return LANGUAGES.find((l) => l.key === key) || LANGUAGES[0];
+};
+
+export const getTTSCode = (key) => {
+  const lang = LANGUAGES.find((l) => l.key === key);
+  return lang ? lang.ttsCode : "en";
+};
+
+export const getSpeechCode = (key) => {
+  const lang = LANGUAGES.find((l) => l.key === key);
+  return lang ? lang.speechCode : "en-IN";
+};

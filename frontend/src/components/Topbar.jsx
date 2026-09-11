@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { useLanguage } from "../context/useLanguage";
+import { LANGUAGES, getLanguageConfig } from "../data/languages";
 import API from "../services/api";
 
 function Topbar({ setMobileOpen }) {
@@ -17,9 +18,23 @@ function Topbar({ setMobileOpen }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [openNotifications, setOpenNotifications] = useState(false);
   const [openLanguageMenu, setOpenLanguageMenu] = useState(false);
+  const [langSearch, setLangSearch] = useState("");
 
   const notifRef = useRef(null);
   const langRef = useRef(null);
+
+  const currentLang = useMemo(() => getLanguageConfig(language), [language]);
+
+  const filteredLanguages = useMemo(() => {
+    if (!langSearch.trim()) return LANGUAGES;
+    const q = langSearch.toLowerCase();
+    return LANGUAGES.filter(
+      (l) =>
+        l.englishName.toLowerCase().includes(q) ||
+        l.label.toLowerCase().includes(q) ||
+        (l.region && l.region.toLowerCase().includes(q))
+    );
+  }, [langSearch]);
 
   // Sync dark mode class
   useEffect(() => {
@@ -135,52 +150,80 @@ function Topbar({ setMobileOpen }) {
         {/* Language Dropdown */}
         <div className="relative" ref={langRef}>
           <button
-            onClick={() => setOpenLanguageMenu(!openLanguageMenu)}
-            className="flex items-center gap-1.5 rounded-xl border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-800 shadow-2xs transition hover:border-emerald-300 hover:bg-emerald-50/50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:border-emerald-700"
+            onClick={() => {
+              setOpenLanguageMenu(!openLanguageMenu);
+              setLangSearch("");
+            }}
+            className="flex items-center gap-1.5 rounded-xl border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-800 shadow-2xs transition hover:border-emerald-300 hover:bg-emerald-50/50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:border-emerald-700 cursor-pointer"
             title="Switch Language"
           >
-            <span>🌐</span>
-            <span className="hidden sm:inline font-medium">
-              {language === "Telugu" ? "తెలుగు" : language === "Hindi" ? "हिन्दी" : "English"}
+            <span className="text-xs">{currentLang.flag}</span>
+            <span className="hidden sm:inline font-medium truncate max-w-[90px]">
+              {currentLang.label}
             </span>
             <span className="text-[9px] text-neutral-400">▼</span>
           </button>
 
           {openLanguageMenu && (
-            <div className="absolute right-0 mt-2 w-36 animate-scale-up overflow-hidden rounded-2xl border border-neutral-200 bg-white p-1.5 shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
-              <button
-                onClick={() => selectLanguage("English")}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium ${
-                  language === "English"
-                    ? "bg-emerald-600 text-white font-semibold shadow-xs"
-                    : "text-neutral-700 hover:bg-emerald-50 dark:text-neutral-300 dark:hover:bg-emerald-950/40"
-                }`}
-              >
-                <span>🇬🇧 English</span>
-                {language === "English" && <span>✓</span>}
-              </button>
-              <button
-                onClick={() => selectLanguage("Telugu")}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium ${
-                  language === "Telugu"
-                    ? "bg-emerald-600 text-white font-semibold shadow-xs"
-                    : "text-neutral-700 hover:bg-emerald-50 dark:text-neutral-300 dark:hover:bg-emerald-950/40"
-                }`}
-              >
-                <span>🇮🇳 తెలుగు</span>
-                {language === "Telugu" && <span>✓</span>}
-              </button>
-              <button
-                onClick={() => selectLanguage("Hindi")}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium ${
-                  language === "Hindi"
-                    ? "bg-emerald-600 text-white font-semibold shadow-xs"
-                    : "text-neutral-700 hover:bg-emerald-50 dark:text-neutral-300 dark:hover:bg-emerald-950/40"
-                }`}
-              >
-                <span>🇮🇳 हिन्दी</span>
-                {language === "Hindi" && <span>✓</span>}
-              </button>
+            <div className="absolute right-0 mt-2 w-64 animate-scale-up overflow-hidden rounded-2xl border border-neutral-200 bg-white p-2 shadow-2xl dark:border-neutral-800 dark:bg-neutral-900 z-50">
+              <div className="mb-2 px-1">
+                <div className="flex items-center justify-between pb-1.5 border-b border-neutral-100 dark:border-neutral-800">
+                  <span className="text-[11px] font-bold text-neutral-800 dark:text-neutral-200">
+                    Select Language
+                  </span>
+                  <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                    {LANGUAGES.length} Languages
+                  </span>
+                </div>
+                <div className="mt-1.5 relative">
+                  <input
+                    type="text"
+                    value={langSearch}
+                    onChange={(e) => setLangSearch(e.target.value)}
+                    placeholder="Search language / भाषा..."
+                    className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[11px] text-neutral-800 placeholder:text-neutral-400 outline-none focus:border-emerald-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+                  />
+                </div>
+              </div>
+
+              <div className="max-h-72 overflow-y-auto space-y-0.5 pr-0.5 scrollbar-thin">
+                {filteredLanguages.length === 0 ? (
+                  <p className="py-3 text-center text-xs text-neutral-400">No language found</p>
+                ) : (
+                  filteredLanguages.map((langItem) => {
+                    const isSelected = language === langItem.key;
+                    return (
+                      <button
+                        key={langItem.key}
+                        type="button"
+                        onClick={() => selectLanguage(langItem.key)}
+                        className={`flex w-full items-center justify-between rounded-xl px-2.5 py-1.5 text-xs transition cursor-pointer ${
+                          isSelected
+                            ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                            : "text-neutral-700 hover:bg-emerald-50 dark:text-neutral-300 dark:hover:bg-emerald-950/40"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-sm shrink-0">{langItem.flag}</span>
+                          <div className="flex flex-col text-left min-w-0">
+                            <span className="font-semibold leading-tight truncate">{langItem.label}</span>
+                            <span
+                              className={`text-[10px] leading-tight truncate ${
+                                isSelected
+                                  ? "text-emerald-100"
+                                  : "text-neutral-400 dark:text-neutral-500"
+                              }`}
+                            >
+                              {langItem.englishName} • {langItem.region}
+                            </span>
+                          </div>
+                        </div>
+                        {isSelected && <span className="text-xs font-bold shrink-0 ml-1.5">✓</span>}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
             </div>
           )}
         </div>

@@ -2,18 +2,161 @@ import { useEffect, useRef, useState } from "react";
 import API from "../services/api";
 import notionAI from "../assets/notion-ai.jpg";
 import { useLanguage } from "../context/useLanguage";
+import { LANGUAGES, getLanguageConfig } from "../data/languages";
+
+const WELCOME_MESSAGES = {
+  English: "Hello! 🌱 I'm your Agro AI Assistant. Ask me anything about crop health, soil, fertilizers, weather impacts, or upload a leaf photograph for disease diagnostics.",
+  Hindi: "नमस्ते! 🌱 मैं Agro AI हूँ। फसलों, उर्वरकों, कीटों, मिट्टी, खेती के तरीकों के बारे में पूछें या फसल की तस्वीर अपलोड करें।",
+  Telugu: "నమస్కారం! 🌱 నేను Agro AI. పంటలు, ఎరువులు, తెగుళ్లు, నేల, సాగు పద్ధతులు లేదా పంట చిత్రాన్ని విశ్లేషించడం గురించి నన్ను అడగండి.",
+  Tamil: "வணக்கம்! 🌱 நான் Agro AI. பயிர்கள், உரங்கள், பூச்சிகள், மண் மற்றும் சாகுபடி முறைகள் பற்றி கேளுங்கள் அல்லது இலை புகைப்படத்தை பதிவேற்றுங்கள்.",
+  Kannada: "ನಮಸ್ಕಾರ! 🌱 ನಾನು Agro AI. ಬೆಳೆಗಳು, ರಸಗೊಬ್ಬರಗಳು, ಕೀಟಗಳು, ಮಣ್ಣು ಮತ್ತು ಕೃಷಿ ವಿಧಾನಗಳ ಬಗ್ಗೆ ಕೇಳಿ ಅಥವಾ ಬೆಳೆಯ ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ.",
+  Malayalam: "നമസ്കാരം! 🌱 ഞാൻ Agro AI. വിളകൾ, വളങ്ങൾ, കീടങ്ങൾ, മണ്ണ്, കൃഷിരീതികൾ എന്നിവയെക്കുറിച്ച് ചോദിക്കുക അല്ലെങ്കിൽ വിളയുടെ ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യുക.",
+  Marathi: "नमस्कार! 🌱 मी Agro AI आहे. पिके, खते, कीड, माती आणि शेती पद्धतींबद्दल विचारा किंवा पिकाचा फोटो अपलोड करा.",
+  Gujarati: "નમસ્તે! 🌱 હું Agro AI છું. પાક, ખાતર, જીવાત, જમીન અને ખેતી પદ્ધતિઓ વિશે પૂછો અથવા પાકનો ફોટો અપલોડ કરો.",
+  Bengali: "নমস্কার! 🌱 আমি Agro AI। ফসল, সার, কীটপতঙ্গ, মাটি এবং চাষের পদ্ধতি সম্পর্কে জিজ্ঞাসা করুন বা ফসলের ছবি আপলোড করুন।",
+  Punjabi: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! 🌱 ਮੈਂ Agro AI ਹਾਂ। ਫਸਲਾਂ, ਖਾਦਾਂ, ਕੀੜਿਆਂ, ਮਿੱਟੀ ਅਤੇ ਖੇਤੀ ਦੇ ਤਰੀਕਿਆਂ ਬਾਰੇ ਪੁੱਛੋ ਜਾਂ ਫਸਲ ਦੀ ਤਸਵੀਰ ਅਪਲੋਡ ਕਰੋ।",
+  Odia: "ନମସ୍କାର! 🌱 ମୁଁ Agro AI। ଫସଲ, ସାର, କୀଟପତଙ୍ଗ, ମାଟି ଏବଂ କୃଷି ପ୍ରଣାଳୀ ବିଷୟରେ ପଚାରନ୍ତୁ କିମ୍ବା ଫସଲର ଫଟୋ ଅପଲୋଡ୍ କରନ୍ତୁ।",
+  Assamese: "নমস্কাৰ! 🌱 মই Agro AI। শস্য, সাৰ, কীট-পতংগ, মাটি আৰু খেতিৰ পদ্ধতি সম্পৰ্কে সোধক বা শস্যৰ ফটো আপলোড কৰক।",
+  Urdu: "آداب! 🌱 میں Agro AI ہوں۔ فصلوں، کھادوں، کیڑوں، مٹی اور کاشتکاری کے طریقوں کے بارے میں پوچھیں یا فصل کی تصویر اپ لوڈ کریں۔",
+};
+
+const SUGGESTED_QUESTIONS = {
+  English: [
+    "How to treat early blight in tomatoes?",
+    "Optimal NPK fertilizer schedule for wheat?",
+    "Best natural remedies for cotton bollworm?",
+  ],
+  Hindi: [
+    "टमाटर में कीटों को कैसे रोकें?",
+    "धान के लिए सबसे अच्छी खाद कौन सी है?",
+    "कपास में गुलाबी सुंडी का नियंत्रण कैसे करें?",
+  ],
+  Telugu: [
+    "టమోటా తెగుళ్లను ఎలా నివారించాలి?",
+    "వరి పంటకు ఉత్తమ ఎరువు ఏది?",
+    "పత్తి పంటలో గులాబీ రంగు పురుగు నివారణ ఎలా?",
+  ],
+  Tamil: [
+    "தக்காளி இலை கருகல் நோயை தடுப்பது எப்படி?",
+    "நெல் பயிருக்கு சிறந்த உரம் எது?",
+    "பருத்தி காய்ப்புழுவை இயற்கை முறையில் கட்டுப்படுத்துவது எப்படி?",
+  ],
+  Kannada: [
+    "ಟೊಮೆಟೊ ಬೆಳೆಯ ರೋಗಗಳನ್ನು ತಡೆಯುವುದು ಹೇಗೆ?",
+    "ಭತ್ತದ ಬೆಳೆಗೆ ಉತ್ತಮ ರಸಗೊಬ್ಬರ ಯಾವುದು?",
+    "ಹತ್ತಿ ಬೆಳೆಯಲ್ಲಿ ಕಾಯಿಕೊರಕ ಹುಳು ನಿಯಂತ್ರಣ ಹೇಗೆ?",
+  ],
+  Malayalam: [
+    "തക്കാളിയിലെ രോഗങ്ങൾ എങ്ങനെ തടയാം?",
+    "നെൽകൃഷിക്ക് ഏറ്റവും അനുയോജ്യമായ വളം ഏതാണ്?",
+    "പച്ചക്കറികളിലെ കീടനിയന്ത്രണത്തിനുള്ള ജൈവ മാർഗ്ഗങ്ങൾ?",
+  ],
+  Marathi: [
+    "टोमॅटो पिकावरील रोगांचे नियंत्रण कसे करावे?",
+    "भात पिकासाठी सर्वोत्तम खत कोणते आहे?",
+    "कपाशीवरील बोंडअळी कशी रोखावी?",
+  ],
+  Gujarati: [
+    "ટામેટામાં રોગ અને જીવાતનું નિયંત્રણ કેવી રીતે કરવું?",
+    "ડાંગરના પાક માટે શ્રેષ્ઠ ખાતર કયું છે?",
+    "કપાસમાં ગુલાબી ઈયળનું નિયંત્રણ કેવી રીતે કરવું?",
+  ],
+  Bengali: [
+    "টমেটোর ধসা রোগ কীভাবে প্রতিরোধ করবেন?",
+    "ধান চাষের জন্য সবচেয়ে ভালো সার কোনটি?",
+    "তুলা চাষে পোকা দমনের প্রাকৃতিক উপায় কি?",
+  ],
+  Punjabi: [
+    "ਟਮਾਟਰ ਦੇ ਝੁਲਸਾ ਰੋਗ ਦੀ ਰੋਕਥਾਮ ਕਿਵੇਂ ਕਰੀਏ?",
+    "ਝੋਨੇ ਦੀ ਫਸਲ ਲਈ ਸਭ ਤੋਂ ਵਧੀਆ ਖਾਦ ਕਿਹੜੀ ਹੈ?",
+    "ਨਰਮੇ ਵਿੱਚ ਗੁਲਾਬੀ ਸੁੰਡੀ ਦੀ ਰੋਕਥਾਮ ਕਿਵੇਂ ਕਰੀਏ?",
+  ],
+  Odia: [
+    "ଟମାଟୋ ଫସଲରେ ରୋଗ ପୋକ ନିୟନ୍ତ୍ରଣ କିପରି କରିବେ?",
+    "ଧାନ ଫସଲ ପାଇଁ ସବୁଠାରୁ ଉତ୍ତମ ସାର କ’ଣ?",
+    "କପା ଫସଲରେ କୀଟପତଙ୍ଗ ନିୟନ୍ତ୍ରଣ ପାଇଁ ଉପାୟ କ’ଣ?",
+  ],
+  Assamese: [
+    "বিলাহীৰ পাত মৰহি যোৱা ৰোগ কেনেকৈ প্ৰতিৰোধ কৰিব?",
+    "ধান খেতিৰ বাবে আটাইতকৈ উপযোগী সাৰ কি?",
+    "পোক-পতংগ নিয়ন্ত্ৰণৰ বাবে জৈৱিক উপায় কি?",
+  ],
+  Urdu: [
+    "ٹماٹر کی فصل میں کیڑوں سے بچاؤ کیسے کریں؟",
+    "دھان کی فصل کے لیے بہترین کھاد کون سی ہے؟",
+    "کپاس میں گلابی سنڈی کا خاتمہ کیسے کریں؟",
+  ],
+};
+
+const DISEASE_HEADERS = {
+  English: { title: "Disease Diagnostics Result", pred: "Prediction", conf: "Confidence" },
+  Hindi: { title: "फसल रोग पहचान परिणाम", pred: "अनुमान", conf: "विश्वास स्तर" },
+  Telugu: { title: "పంట వ్యాధి గుర్తింపు ఫలితం", pred: "అంచనా", conf: "నమ్మక స్థాయి" },
+  Tamil: { title: "பயிர் நோய் கண்டறிதல் முடிவு", pred: "கணிப்பு", conf: "நம்பகத்தன்மை" },
+  Kannada: { title: "ಬೆಳೆ ರೋಗ ಪತ್ತೆ ಫಲಿತಾಂಶ", pred: "ಅಂದಾಜು", conf: "ವಿಶ್ವಾಸಾರ್ಹತೆ" },
+  Malayalam: { title: "വിള രോഗനിർണയ ഫലം", pred: "കണ്ടെത്തൽ", conf: "വിശ്വാസ്യത" },
+  Marathi: { title: "पीक रोग निदान निकाल", pred: "अंदाज", conf: "विश्वासार्हता" },
+  Gujarati: { title: "પાક રોગ નિદાન પરિણામ", pred: "અનુમાન", conf: "વિશ્વાસ સ્તર" },
+  Bengali: { title: "ফসল রোগ নির্ণয়ের ফলাফল", pred: "পূর্বাভাস", conf: "নির্ভুলতা স্তর" },
+  Punjabi: { title: "ਫਸਲ ਰੋਗ ਜਾਂਚ ਨਤੀਜਾ", pred: "ਅਨੁਮਾਨ", conf: "ਭਰੋਸੇਯੋਗਤਾ" },
+  Odia: { title: "ଫସଲ ରୋଗ ନିର୍ଣ୍ଣୟ ଫଳାଫଳ", pred: "ଅନୁମାନ", conf: "ବିଶ୍ୱାସନୀୟତା" },
+  Assamese: { title: "শস্য ৰোগ নিৰ্ণয় ফলাফল", pred: "অনুমান", conf: "বিশ্বাসযোগ্যতা" },
+  Urdu: { title: "فصل کی بیماری کی تشخیص کا نتیجہ", pred: "تشخیص", conf: "اعتماد کی سطح" },
+};
+
+const ERROR_MESSAGES = {
+  English: "Sorry, I couldn't process your request right now. Please try again.",
+  Hindi: "क्षमा करें, मैं अभी आपके अनुरोध को संसाधित नहीं कर सका। कृपया फिर से प्रयास करें।",
+  Telugu: "క్షమించండి, మీ అభ్యర్థనను ప్రస్తుతం ప్రాసెస్ చేయలేకపోయాను. దయచేసి మళ్లీ ప్రయత్నించండి.",
+  Tamil: "மன்னிக்கவும், உங்கள் கோரிக்கையை இப்போது செயல்படுத்த முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+  Kannada: "ಕ್ಷಮಿಸಿ, ನಿಮ್ಮ ವಿನಂತಿಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+  Malayalam: "ക്ഷമിക്കുക, നിങ്ങളുടെ അഭ്യർത്ഥന ഇപ്പോൾ പ്രോസസ്സ് ചെയ്യാൻ കഴിഞ്ഞില്ല. ദയവായി വീണ്ടും ശ്രമിക്കുക.",
+  Marathi: "माफ करा, सध्या तुमची विनंती पूर्ण होऊ शकली नाही. कृपया पुन्हा प्रयत्न करा.",
+  Gujarati: "માફ કરશો, હાલમાં તમારી વિનંતી પર પ્રક્રિયા થઈ શકી નથી. કૃપા કરીને ફરી પ્રયાસ કરો.",
+  Bengali: "দুঃখিত, এই মুহূর্তে আপনার অনুরোধটি প্রক্রিয়া করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
+  Punjabi: "ਮਾਫ਼ ਕਰਨਾ, ਇਸ ਸਮੇਂ ਤੁਹਾਡੀ ਬੇਨਤੀ 'ਤੇ ਕਾਰਵਾਈ ਨਹੀਂ ਹੋ ਸਕੀ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  Odia: "କ୍ଷମା କରିବେ, ବର୍ତ୍ତମାନ ଆପଣଙ୍କ ଅନୁରୋଧ ପ୍ରକ୍ରିୟାକରଣ ହୋଇପାରିଲା ନାହିଁ। ଦୟାକରି ପୁନର୍ବାର ଚେଷ୍ଟା କରନ୍ତୁ।",
+  Assamese: "ক্ষমা কৰিব, এই মুহূৰ্তত আপোনাৰ অনুৰোধ প্ৰক্ৰিয়া কৰিব পৰা নগ'ল। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।",
+  Urdu: "معذرت، ابھی آپ کی درخواست پر عمل نہیں کیا جا سکا۔ براہ کرم دوبارہ کوشش کریں۔",
+};
+
+const LISTENING_PROMPTS = {
+  English: "🎙️ Listening in English... Speak your question now",
+  Hindi: "🎙️ हिन्दी में बोल रहे हैं... (Speak in Hindi)",
+  Telugu: "🎙️ తెలుగులో మాట్లాడుతున్నారు... (Speak in Telugu)",
+  Tamil: "🎙️ தமிழில் பேசுகிறீர்கள்... (Speak in Tamil)",
+  Kannada: "🎙️ ಕನ್ನಡದಲ್ಲಿ ಮಾತನಾಡುತ್ತಿದ್ದೀರಿ... (Speak in Kannada)",
+  Malayalam: "🎙️ മലയാളത്തിൽ സംസാരിക്കുന്നു... (Speak in Malayalam)",
+  Marathi: "🎙️ मराठीत बोलत आहात... (Speak in Marathi)",
+  Gujarati: "🎙️ ગુજરાતીમાં બોલી રહ્યા છો... (Speak in Gujarati)",
+  Bengali: "🎙️ বাংলায় কথা বলছেন... (Speak in Bengali)",
+  Punjabi: "🎙️ ਪੰਜਾਬੀ ਵਿੱਚ ਬੋਲ ਰਹੇ ਹੋ... (Speak in Punjabi)",
+  Odia: "🎙️ ଓଡ଼ିଆରେ କହୁଛନ୍ତି... (Speak in Odia)",
+  Assamese: "🎙️ অসমীয়াত কৈ আছে... (Speak in Assamese)",
+  Urdu: "🎙️ اردو میں بول رہے ہیں... (Speak in Urdu)",
+};
+
+const PLACEHOLDER_PROMPTS = {
+  English: "Ask Agro AI about crops, fertilizers, pest control (or click mic)...",
+  Hindi: "Agro AI से खेती, उर्वरक, कीट नियंत्रण के बारे में पूछें (या माइक दबाएं)...",
+  Telugu: "Agro AI ని పంటలు, ఎరువులు, తెగుళ్ల గురించి అడగండి (లేదా మైక్ నొక్కండి)...",
+  Tamil: "பயிர்கள், உரங்கள், பூச்சிகள் பற்றி Agro AI-யிடம் கேளுங்கள் (அல்லது மைக்கை அழுத்தவும்)...",
+  Kannada: "ಬೆಳೆಗಳು, ರಸಗೊಬ್ಬರ, ಕೀಟಗಳ ಬಗ್ಗೆ Agro AI ಯನ್ನು ಕೇಳಿ (ಅಥವಾ ಮೈಕ್ ಒತ್ತಿ)...",
+  Malayalam: "വിളകൾ, വളങ്ങൾ, കീടങ്ങൾ എന്നിവയെക്കുറിച്ച് Agro AI യോട് ചോദിക്കുക (അല്ലെങ്കിൽ മൈക്ക് ക്ലിക്ക് ചെയ്യുക)...",
+  Marathi: "पिके, खते, कीड व्यवस्थापनाबद्दल Agro AI ला विचारा (किंवा माइक दाबा)...",
+  Gujarati: "પાક, ખાતર, જીવાત નિયંત્રણ વિશે Agro AI ને પૂછો (અથવા માઇક દબાવો)...",
+  Bengali: "ফসল, সার, কীটপতঙ্গ দমন সম্পর্কে Agro AI-কে জিজ্ঞাসা করুন (বা মাইক টিপুন)...",
+  Punjabi: "ਫਸਲਾਂ, ਖਾਦਾਂ, ਕੀੜਿਆਂ ਬਾਰੇ Agro AI ਨੂੰ ਪੁੱਛੋ (ਜਾਂ ਮਾਈਕ ਦਬਾਓ)...",
+  Odia: "ଫସଲ, ସାର, କୀଟ ନିୟନ୍ତ୍ରଣ ବିଷୟରେ Agro AI କୁ ପଚାରନ୍ତୁ (କିମ୍ବା ମାଇକ୍ ଚିପନ୍ତୁ)...",
+  Assamese: "শস্য, সাৰ, কীট নিয়ন্ত্ৰণ বিষয়ে Agro AI ক সোধক (বা মাইক টিপক)...",
+  Urdu: "فصلوں، کھادوں، کیڑوں کے بارے میں Agro AI سے پوچھیں (یا مائیک دبائیں)...",
+};
 
 function AIChat() {
   const { language, setLanguage, changeLanguage } = useLanguage();
 
   const getWelcomeMessage = (selectedLanguage) => {
-    if (selectedLanguage === "Telugu") {
-      return "నమస్కారం! 🌱 నేను Agro AI. పంటలు, ఎరువులు, తెగుళ్లు, నేల, సాగు పద్ధతులు లేదా పంట చిత్రాన్ని విశ్లేషించడం గురించి నన్ను అడగండి.";
-    }
-    if (selectedLanguage === "Hindi") {
-      return "नमस्ते! 🌱 मैं Agro AI हूँ। फसलों, उर्वरकों, कीटों, मिट्टी, खेती के तरीकों के बारे में पूछें या फसल की तस्वीर अपलोड करें।";
-    }
-    return "Hello! 🌱 I'm your Agro AI Assistant. Ask me anything about crop health, soil, fertilizers, weather impacts, or upload a leaf photograph for disease diagnostics.";
+    return WELCOME_MESSAGES[selectedLanguage] || WELCOME_MESSAGES.English;
   };
 
   const [messages, setMessages] = useState([
@@ -118,16 +261,36 @@ function AIChat() {
 
   // Detect language and ISO code for TTS
   const getTTSLanguage = (textToSpeak, currentAppLang) => {
-    const teluguMatches = (textToSpeak.match(/[\u0C00-\u0C7F]/g) || []).length;
-    const hindiMatches = (textToSpeak.match(/[\u0900-\u097F]/g) || []).length;
+    if (!textToSpeak) {
+      const cfg = getLanguageConfig(currentAppLang);
+      return { code: cfg.ttsCode || "en", fullCode: cfg.speechCode || "en-IN", name: cfg.englishName || "English" };
+    }
 
-    if (teluguMatches > 8 || currentAppLang === "Telugu") {
-      return { code: "te", fullCode: "te-IN", name: "Telugu" };
+    if (/[\u0C00-\u0C7F]/.test(textToSpeak)) return { code: "te", fullCode: "te-IN", name: "Telugu" };
+    if (/[\u0B80-\u0BFF]/.test(textToSpeak)) return { code: "ta", fullCode: "ta-IN", name: "Tamil" };
+    if (/[\u0C80-\u0CFF]/.test(textToSpeak)) return { code: "kn", fullCode: "kn-IN", name: "Kannada" };
+    if (/[\u0D00-\u0D7F]/.test(textToSpeak)) return { code: "ml", fullCode: "ml-IN", name: "Malayalam" };
+    if (/[\u0A80-\u0AFF]/.test(textToSpeak)) return { code: "gu", fullCode: "gu-IN", name: "Gujarati" };
+    if (/[\u0A00-\u0A7F]/.test(textToSpeak)) return { code: "pa", fullCode: "pa-IN", name: "Punjabi" };
+    if (/[\u0B00-\u0B7F]/.test(textToSpeak)) return { code: "or", fullCode: "or-IN", name: "Odia" };
+    if (/[\u0600-\u06FF]/.test(textToSpeak)) return { code: "ur", fullCode: "ur-IN", name: "Urdu" };
+    if (/[\u0980-\u09FF]/.test(textToSpeak)) {
+      return currentAppLang === "Assamese"
+        ? { code: "as", fullCode: "as-IN", name: "Assamese" }
+        : { code: "bn", fullCode: "bn-IN", name: "Bengali" };
     }
-    if (hindiMatches > 8 || currentAppLang === "Hindi") {
-      return { code: "hi", fullCode: "hi-IN", name: "Hindi" };
+    if (/[\u0900-\u097F]/.test(textToSpeak)) {
+      return currentAppLang === "Marathi"
+        ? { code: "mr", fullCode: "mr-IN", name: "Marathi" }
+        : { code: "hi", fullCode: "hi-IN", name: "Hindi" };
     }
-    return { code: "en", fullCode: "en-IN", name: "English" };
+
+    const cfg = getLanguageConfig(currentAppLang);
+    return {
+      code: cfg.ttsCode || "en",
+      fullCode: cfg.speechCode || "en-IN",
+      name: cfg.englishName || "English",
+    };
   };
 
   // Split long text into speakable sentence chunks
@@ -331,10 +494,8 @@ function AIChat() {
       const recognition = new SpeechRecognition();
       recognitionRef.current = recognition;
 
-      let langCode = "en-IN";
-      if (language === "Telugu") langCode = "te-IN";
-      else if (language === "Hindi") langCode = "hi-IN";
-      recognition.lang = langCode;
+      const langConfig = getLanguageConfig(language);
+      recognition.lang = langConfig.speechCode || "en-IN";
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
       recognition.continuous = false;
@@ -515,22 +676,11 @@ function AIChat() {
 
       let reply = data.reply;
       if (data.disease) {
-        if (language === "Telugu") {
-          reply = `🌱 **పంట వ్యాధి గుర్తింపు ఫలితం**\n\n**అంచనా:** ${data.disease.label.replaceAll(
-            "___",
-            " — "
-          )}\n**నమ్మక స్థాయి:** ${data.disease.confidence}%\n\n${reply}`;
-        } else if (language === "Hindi") {
-          reply = `🌱 **फसल रोग पहचान परिणाम**\n\n**अनुमान:** ${data.disease.label.replaceAll(
-            "___",
-            " — "
-          )}\n**विश्वास स्तर:** ${data.disease.confidence}%\n\n${reply}`;
-        } else {
-          reply = `🌱 **Disease Diagnostics Result**\n\n**Prediction:** ${data.disease.label.replaceAll(
-            "___",
-            " — "
-          )}\n**Confidence:** ${data.disease.confidence}%\n\n${reply}`;
-        }
+        const dHeader = DISEASE_HEADERS[language] || DISEASE_HEADERS.English;
+        reply = `${dHeader.title}\n\n**${dHeader.pred}:** ${data.disease.label.replaceAll(
+          "___",
+          " — "
+        )}\n**${dHeader.conf}:** ${data.disease.confidence}%\n\n${reply}`;
       }
 
       setMessages((previous) => [
@@ -545,12 +695,7 @@ function AIChat() {
       removeImage();
     } catch (error) {
       console.error("AI chat error:", error);
-      let errorMessage = "Sorry, I couldn't process your request right now. Please try again.";
-      if (language === "Telugu") {
-        errorMessage = "క్షమించండి, మీ అభ్యర్థనను ప్రస్తుతం ప్రాసెస్ చేయలేకపోయాను. దయచేసి మళ్లీ ప్రయత్నించండి.";
-      } else if (language === "Hindi") {
-        errorMessage = "क्षमा करें, मैं अभी आपके अनुरोध को संसाधित नहीं कर सका। कृपया फिर से प्रयास करें।";
-      }
+      const errorMessage = ERROR_MESSAGES[language] || ERROR_MESSAGES.English;
 
       setMessages((previous) => [
         ...previous,
@@ -566,25 +711,7 @@ function AIChat() {
   };
 
   const getSuggestedQuestions = () => {
-    if (language === "Telugu") {
-      return [
-        "టమోటా తెగుళ్లను ఎలా నివారించాలి?",
-        "వరి పంటకు ఉత్తమ ఎరువు ఏది?",
-        "పత్తి పంటలో గులాబీ రంగు పురుగు నివారణ ఎలా?",
-      ];
-    }
-    if (language === "Hindi") {
-      return [
-        "टमाटर में कीटों को कैसे रोकें?",
-        "धान के लिए सबसे अच्छी खाद कौन सी है?",
-        "कपास में गुलाबी सुंडी का नियंत्रण कैसे करें?",
-      ];
-    }
-    return [
-      "How to treat early blight in tomatoes?",
-      "Optimal NPK fertilizer schedule for wheat?",
-      "Best natural remedies for cotton bollworm?",
-    ];
+    return SUGGESTED_QUESTIONS[language] || SUGGESTED_QUESTIONS.English;
   };
 
   return (
@@ -611,33 +738,30 @@ function AIChat() {
                 </span>
               </div>
               <p className="text-[11px] text-neutral-400">
-                Ask with text or voice in English, Telugu & Hindi
+                Ask with text or voice in 13 Indian languages
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Quick Language Toggle Selector */}
-            <div className="flex items-center rounded-xl border border-neutral-200 bg-neutral-50 p-0.5 text-xs shadow-2xs dark:border-neutral-800 dark:bg-neutral-950">
-              {["English", "Telugu", "Hindi"].map((langKey) => {
-                const isSelected = language === langKey;
-                const labels = {
-                  English: "EN",
-                  Telugu: "తెలుగు",
-                  Hindi: "हिन्दी",
-                };
+            <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-neutral-200 bg-neutral-50 p-1 text-xs shadow-2xs dark:border-neutral-800 dark:bg-neutral-950 max-w-[260px] sm:max-w-md scrollbar-none">
+              {LANGUAGES.map((l) => {
+                const isSelected = language === l.key;
                 return (
                   <button
-                    key={langKey}
+                    key={l.key}
                     type="button"
-                    onClick={() => handleSelectLanguage(langKey)}
-                    className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition cursor-pointer ${
+                    onClick={() => handleSelectLanguage(l.key)}
+                    className={`shrink-0 rounded-lg px-2 py-0.5 text-[11px] font-semibold transition cursor-pointer ${
                       isSelected
                         ? "bg-emerald-600 text-white shadow-xs"
                         : "text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
                     }`}
+                    title={`${l.englishName} (${l.label})`}
                   >
-                    {labels[langKey]}
+                    <span className="mr-1">{l.flag}</span>
+                    {l.label}
                   </button>
                 );
               })}
@@ -825,11 +949,7 @@ function AIChat() {
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
                 </span>
                 <span className="font-semibold">
-                  {language === "Telugu"
-                    ? "🎙️ తెలుగులో మాట్లాడుతున్నారు... (Speak in Telugu)"
-                    : language === "Hindi"
-                    ? "🎙️ हिन्दी में बोल रहे हैं... (Speak in Hindi)"
-                    : "🎙️ Listening in English... Speak your question now"}
+                  {LISTENING_PROMPTS[language] || `🎙️ Listening in ${language}... Speak now`}
                 </span>
               </div>
               <button
@@ -952,11 +1072,7 @@ function AIChat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={
-                language === "Telugu"
-                  ? "Agro AI ని వ్యవసాయం గురించి అడగండి (లేదా మైక్ నొక్కండి)..."
-                  : language === "Hindi"
-                  ? "Agro AI से खेती के बारे में पूछें (या माइक दबाएं)..."
-                  : "Ask Agro AI about crops, fertilizers, pest control (or click mic)..."
+                PLACEHOLDER_PROMPTS[language] || `Ask Agro AI in ${language} (or click mic)...`
               }
               disabled={loading}
               className="flex-1 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-xs text-neutral-900 placeholder:text-neutral-400 outline-none transition focus:border-emerald-600 focus:bg-white dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 dark:focus:border-emerald-400 dark:focus:bg-neutral-800"

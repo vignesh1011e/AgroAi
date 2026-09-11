@@ -31,7 +31,7 @@ const sampleListings = [
     type: "Sell",
     price: 620000,
     location: "Vadodara, Gujarat",
-    image: "",
+    image: "/images/marketplace/mahindra-tractor.jpg",
     sellerName: "Ramesh Patel",
     sellerPhone: "9876543210",
   },
@@ -44,7 +44,7 @@ const sampleListings = [
     type: "Sell",
     price: 710000,
     location: "Anand, Gujarat",
-    image: "",
+    image: "/images/marketplace/swaraj-tractor.jpg",
     sellerName: "Suresh Patel",
     sellerPhone: "9876543211",
   },
@@ -57,7 +57,7 @@ const sampleListings = [
     type: "Rent",
     price: 1500,
     location: "Vadodara, Gujarat",
-    image: "",
+    image: "/images/marketplace/johndeere-tractor.jpg",
     sellerName: "Kiran Patel",
     sellerPhone: "9876543212",
   },
@@ -70,7 +70,7 @@ const sampleListings = [
     type: "Sell",
     price: 45000,
     location: "Ahmedabad, Gujarat",
-    image: "",
+    image: "/images/marketplace/cultivator.jpg",
     sellerName: "Mahesh Kumar",
     sellerPhone: "9876543213",
   },
@@ -83,7 +83,7 @@ const sampleListings = [
     type: "Sell",
     price: 115000,
     location: "Nadiad, Gujarat",
-    image: "",
+    image: "/images/marketplace/rotavator.jpg",
     sellerName: "Dinesh Patel",
     sellerPhone: "9876543214",
   },
@@ -96,7 +96,7 @@ const sampleListings = [
     type: "Rent",
     price: 1200,
     location: "Bharuch, Gujarat",
-    image: "",
+    image: "/images/marketplace/seed-drill.jpg",
     sellerName: "Ajay Patel",
     sellerPhone: "9876543215",
   },
@@ -109,7 +109,7 @@ const sampleListings = [
     type: "Sell",
     price: 32000,
     location: "Vadodara, Gujarat",
-    image: "",
+    image: "/images/marketplace/water-pump.jpg",
     sellerName: "Vijay Shah",
     sellerPhone: "9876543216",
   },
@@ -122,7 +122,7 @@ const sampleListings = [
     type: "Sell",
     price: 8500,
     location: "Godhra, Gujarat",
-    image: "",
+    image: "/images/marketplace/sprayer.jpg",
     sellerName: "Harish Patel",
     sellerPhone: "9876543217",
   },
@@ -135,7 +135,7 @@ const sampleListings = [
     type: "Sell",
     price: 95000,
     location: "Dahod, Gujarat",
-    image: "",
+    image: "/images/marketplace/trailer.jpg",
     sellerName: "Bharat Patel",
     sellerPhone: "9876543218",
   },
@@ -148,7 +148,7 @@ const sampleListings = [
     type: "Rent",
     price: 3500,
     location: "Anand, Gujarat",
-    image: "",
+    image: "/images/marketplace/harvester.jpg",
     sellerName: "Rajesh Kumar",
     sellerPhone: "9876543219",
   },
@@ -178,6 +178,12 @@ const seedListings = async () => {
 
     await Listing.insertMany(
       sampleListings
+    );
+
+    // Also update any remaining existing listings with empty image
+    await Listing.updateMany(
+      { $or: [{ image: "" }, { image: null }, { image: { $exists: false } }] },
+      { $set: { image: "/images/marketplace/mahindra-tractor.jpg" } }
     );
 
     console.log(

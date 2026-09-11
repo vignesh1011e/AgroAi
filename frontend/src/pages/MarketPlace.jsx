@@ -2,6 +2,76 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import { useLanguage } from "../context/useLanguage";
 
+const EQUIPMENT_FALLBACK_IMAGES = {
+  sprayer: "/images/marketplace/sprayer.jpg",
+  trailer: "/images/marketplace/trailer.jpg",
+  harvester: "/images/marketplace/harvester.jpg",
+  cultivator: "/images/marketplace/cultivator.jpg",
+  rotavator: "/images/marketplace/rotavator.jpg",
+  tiller: "/images/marketplace/cultivator.jpg",
+  drill: "/images/marketplace/seed-drill.jpg",
+  pump: "/images/marketplace/water-pump.jpg",
+  swaraj: "/images/marketplace/swaraj-tractor.jpg",
+  deere: "/images/marketplace/johndeere-tractor.jpg",
+  mahindra: "/images/marketplace/mahindra-tractor.jpg",
+  tractor: "/images/marketplace/mahindra-tractor.jpg",
+  vehicles: "/images/marketplace/trailer.jpg",
+  tools: "/images/marketplace/sprayer.jpg",
+  irrigation: "/images/marketplace/water-pump.jpg",
+  machinery: "/images/marketplace/harvester.jpg",
+};
+
+const getFallbackImage = (item) => {
+  const text = `${item?.title || ""} ${item?.category || ""} ${item?.description || ""}`.toLowerCase();
+  if (text.includes("sprayer")) return EQUIPMENT_FALLBACK_IMAGES.sprayer;
+  if (text.includes("trailer") || text.includes("trolley")) return EQUIPMENT_FALLBACK_IMAGES.trailer;
+  if (text.includes("harvester") || text.includes("paddy")) return EQUIPMENT_FALLBACK_IMAGES.harvester;
+  if (text.includes("cultivator")) return EQUIPMENT_FALLBACK_IMAGES.cultivator;
+  if (text.includes("rotavator")) return EQUIPMENT_FALLBACK_IMAGES.rotavator;
+  if (text.includes("tiller")) return EQUIPMENT_FALLBACK_IMAGES.tiller;
+  if (text.includes("seed") || text.includes("drill")) return EQUIPMENT_FALLBACK_IMAGES.drill;
+  if (text.includes("pump") || text.includes("irrigation") || text.includes("water")) return EQUIPMENT_FALLBACK_IMAGES.pump;
+  if (text.includes("swaraj")) return EQUIPMENT_FALLBACK_IMAGES.swaraj;
+  if (text.includes("john deere") || text.includes("deere")) return EQUIPMENT_FALLBACK_IMAGES.deere;
+  if (text.includes("mahindra")) return EQUIPMENT_FALLBACK_IMAGES.mahindra;
+  if (text.includes("tractor")) return EQUIPMENT_FALLBACK_IMAGES.tractor;
+  if (item?.category === "Vehicles") return EQUIPMENT_FALLBACK_IMAGES.vehicles;
+  if (item?.category === "Tools") return EQUIPMENT_FALLBACK_IMAGES.tools;
+  if (item?.category === "Irrigation") return EQUIPMENT_FALLBACK_IMAGES.irrigation;
+  if (item?.category === "Farm Machinery") return EQUIPMENT_FALLBACK_IMAGES.machinery;
+  return EQUIPMENT_FALLBACK_IMAGES.tractor;
+};
+
+const getLocalFallbackImage = (item) => {
+  const text = `${item?.title || ""} ${item?.category || ""} ${item?.description || ""}`.toLowerCase();
+  if (text.includes("sprayer")) return "/images/marketplace/sprayer.jpg";
+  if (text.includes("trailer") || text.includes("trolley")) return "/images/marketplace/trailer.jpg";
+  if (text.includes("harvester") || text.includes("paddy")) return "/images/marketplace/harvester.jpg";
+  if (text.includes("cultivator")) return "/images/marketplace/cultivator.jpg";
+  if (text.includes("rotavator")) return "/images/marketplace/rotavator.jpg";
+  if (text.includes("tiller")) return "/images/marketplace/cultivator.jpg";
+  if (text.includes("seed") || text.includes("drill")) return "/images/marketplace/seed-drill.jpg";
+  if (text.includes("pump") || text.includes("water")) return "/images/marketplace/water-pump.jpg";
+  if (text.includes("swaraj")) return "/images/marketplace/swaraj-tractor.jpg";
+  if (text.includes("john deere") || text.includes("deere")) return "/images/marketplace/johndeere-tractor.jpg";
+  if (text.includes("mahindra")) return "/images/marketplace/mahindra-tractor.jpg";
+  if (text.includes("tractor")) return "/images/marketplace/mahindra-tractor.jpg";
+  if (item?.category === "Vehicles") return "/images/marketplace/trailer.jpg";
+  if (item?.category === "Tools") return "/images/marketplace/sprayer.jpg";
+  if (item?.category === "Irrigation") return "/images/marketplace/water-pump.jpg";
+  if (item?.category === "Farm Machinery") return "/images/marketplace/harvester.jpg";
+  return "/images/marketplace/mahindra-tractor.jpg";
+};
+
+const getListingImage = (item) => {
+  if (item?.image && typeof item.image === "string" && item.image.trim() !== "") {
+    if (item.image.startsWith("http")) return item.image;
+    if (item.image.startsWith("/uploads")) return `http://localhost:5000${item.image}`;
+    return item.image;
+  }
+  return getFallbackImage(item);
+};
+
 function Marketplace() {
   const { language } = useLanguage();
 
@@ -351,17 +421,18 @@ function Marketplace() {
               <div>
                 {/* Item Image */}
                 <div className="relative mb-3 h-40 w-full overflow-hidden rounded-xl border border-neutral-100 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-800">
-                  {item.image ? (
-                    <img
-                      src={item.image.startsWith("http") ? item.image : `http://localhost:5000${item.image}`}
-                      alt={item.title}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-3xl opacity-30">
-                      🚜
-                    </div>
-                  )}
+                  <img
+                    src={getListingImage(item)}
+                    alt={item.title}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.onerror = () => {
+                        e.currentTarget.src = "/images/marketplace/mahindra-tractor.jpg";
+                      };
+                      e.currentTarget.src = getLocalFallbackImage(item);
+                    }}
+                  />
                   <span className="absolute top-2.5 right-2.5 rounded-md border border-emerald-200/90 bg-emerald-50/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800 shadow-xs backdrop-blur-md dark:border-emerald-800 dark:bg-emerald-950/90 dark:text-emerald-300">
                     {item.type}
                   </span>

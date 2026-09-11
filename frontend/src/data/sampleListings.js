@@ -10,7 +10,7 @@ const sampleListings = [
     location: "Vadodara",
     sellerName: "Ramesh Patel",
     sellerPhone: "9876543210",
-    image: "/images/tractor.jpg",
+    image: "/images/marketplace/mahindra-tractor.jpg",
   },
 
   {
@@ -24,7 +24,7 @@ const sampleListings = [
     location: "Anand",
     sellerName: "Suresh Kumar",
     sellerPhone: "9123456780",
-    image: "/images/rotavator.jpg",
+    image: "/images/marketplace/rotavator.jpg",
   },
 
   {
@@ -38,7 +38,7 @@ const sampleListings = [
     location: "Vadodara",
     sellerName: "Mahesh Patel",
     sellerPhone: "9988776655",
-    image: "/images/water-pump.jpg",
+    image: "/images/marketplace/water-pump.jpg",
   },
 
   {
@@ -52,7 +52,7 @@ const sampleListings = [
     location: "Bharuch",
     sellerName: "Rajesh Singh",
     sellerPhone: "9012345678",
-    image: "/images/power-tiller.jpg",
+    image: "/images/marketplace/cultivator.jpg",
   },
 
   {
@@ -66,7 +66,7 @@ const sampleListings = [
     location: "Anand",
     sellerName: "Vijay Patel",
     sellerPhone: "9876501234",
-    image: "/images/trailer.jpg",
+    image: "/images/marketplace/trailer.jpg",
   },
 
   {
@@ -80,7 +80,7 @@ const sampleListings = [
     location: "Vadodara",
     sellerName: "Amit Shah",
     sellerPhone: "9090909090",
-    image: "/images/sprayer.jpg",
+    image: "/images/marketplace/sprayer.jpg",
   },
 
   {
@@ -94,7 +94,7 @@ const sampleListings = [
     location: "Padra",
     sellerName: "Kiran Patel",
     sellerPhone: "9345678901",
-    image: "/images/mini-tractor.jpg",
+    image: "/images/marketplace/johndeere-tractor.jpg",
   },
 
   {
@@ -108,7 +108,7 @@ const sampleListings = [
     location: "Bharuch",
     sellerName: "Dinesh Patel",
     sellerPhone: "8765432109",
-    image: "/images/seed-drill.jpg",
+    image: "/images/marketplace/seed-drill.jpg",
   },
 ];
 

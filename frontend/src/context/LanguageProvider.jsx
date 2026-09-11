@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { LanguageContext } from "./LanguageContext";
-
-const SUPPORTED_LANGUAGES = [
-  "English",
-  "Telugu",
-  "Hindi",
-];
+import { LANGUAGES, SUPPORTED_LANGUAGES, getLanguageConfig } from "../data/languages";
 
 const getStoredLanguage = () => {
   const storedLanguage = localStorage.getItem("agro_language");
@@ -32,6 +27,8 @@ export const LanguageProvider = ({ children }) => {
     localStorage.setItem("agro_language", language);
   }, [language]);
 
+  const currentLanguageConfig = getLanguageConfig(language);
+
   return (
     <LanguageContext.Provider
       value={{
@@ -39,6 +36,8 @@ export const LanguageProvider = ({ children }) => {
         changeLanguage,
         setLanguage: changeLanguage,
         languages: SUPPORTED_LANGUAGES,
+        languageList: LANGUAGES,
+        currentLanguageConfig,
       }}
     >
       {children}

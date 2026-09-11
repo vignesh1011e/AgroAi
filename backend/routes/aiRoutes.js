@@ -20,6 +20,21 @@ const upload = multer({
 function getSmartAgriResponse(query, language, hasImage, diseasePrediction) {
   const q = (query || "").toLowerCase();
 
+  const generalAdvisories = {
+    Telugu: `🌱 **Agro AI వ్యవసాయ సలహా**\n\n1. **నేల మరియు తేమ నిర్వహణ:** మీ పొలంలో తేమ శాతాన్ని బట్టి సమతుల్యంగా నీటిపారుదల అందించండి.\n2. **సమతుల్య ఎరువులు:** నేల పరీక్ష ఆధారంగా NPK మరియు సూక్ష్మ పోషకాలను అందించండి.\n3. **సమగ్ర సస్యరక్షణ:** తెగుళ్లు ఆరంభ దశలో ఉన్నప్పుడే వేప ద్రావణం లేదా తగిన రసాయన మందులు పిచికారీ చేయండి.`,
+    Hindi: `🌱 **Agro AI कृषि सलाह**\n\n1. **मृदा एवं नमी प्रबंधन:** खेत में नमी के अनुसार संतुलित सिंचाई करें।\n2. **संतुलित उर्वरक:** मिट्टी परीक्षण के आधार पर NPK और सूक्ष्म पोषक तत्वों का प्रयोग करें।\n3. **एकीकृत कीट प्रबंधन:** प्रारंभिक अवस्था में जैविक उपचार (नीम तेल) और अनुशंसित कीटनाशक का प्रयोग करें।`,
+    Tamil: `🌱 **Agro AI வேளாண்மை ஆலோசனை**\n\n1. **மண் மற்றும் ஈரப்பத மேலாண்மை:** வயலில் ஈரப்பதத்திற்கு ஏற்ப சீரான பாசனம் செய்யுங்கள்.\n2. **சமச்சீர் உரங்கள்:** மண் பரிசோதனை அடிப்படையில் NPK மற்றும் நுண்ணூட்டச்சத்துக்களை அளியுங்கள்.\n3. **ஒருங்கிணைந்த பூச்சி மேலாண்மை:** தொடக்க நிலையிலேயே வேப்பெண்ணெய் அல்லது பரிந்துரைக்கப்பட்ட பூச்சிக்கொல்லிகளை தெளிக்கவும்.`,
+    Kannada: `🌱 **Agro AI ಕೃಷಿ ಸಲಹೆ**\n\n1. **ಮಣ್ಣು ಮತ್ತು ತೇವಾಂಶ ನಿರ್ವಹಣೆ:** ಹೊಲದ ತೇವಾಂಶಕ್ಕೆ ಅನುಗುಣವಾಗಿ ಸಮತೋಲಿತ ನೀರಾವರಿ ಒದಗಿಸಿ.\n2. **ಸಮತೋಲಿತ ರಸಗೊಬ್ಬರ:** ಮಣ್ಣು ಪರೀಕ್ಷೆಯ ಆಧಾರದ ಮೇಲೆ NPK ಮತ್ತು ಸೂಕ್ಷ್ಮ ಪೋಷಕಾಂಶಗಳನ್ನು ಬಳಸಿ.\n3. **ಸಮಗ್ರ ಕೀಟ ನಿರ್ವಹಣೆ:** ಆರಂಭಿಕ ಹಂತದಲ್ಲೇ ಬೇವಿನ ಎಣ್ಣೆ ಅಥವಾ ಶಿಫಾರಸು ಮಾಡಿದ ಕೀಟನಾಶಕ ಸಿಂಪಡಿಸಿ.`,
+    Malayalam: `🌱 **Agro AI കാർഷിക നിർദ്ദേശം**\n\n1. **മണ്ണും ഈർപ്പവും പരിപാലനം:** മണ്ണിലെ ഈർപ്പത്തിന് അനുസൃതമായി നനയ്ക്കുക.\n2. **സമീകൃത വളപ്രയോഗം:** മണ്ണ് പരിശോധനയുടെ അടിസ്ഥാനത്തിൽ NPK വളങ്ങളും സൂക്ഷ്മ മൂലകങ്ങളും നൽകുക.\n3. **കീടനിയന്ത്രണം:** പ്രാരംഭ ഘട്ടത്തിൽ തന്നെ വേപ്പെണ്ണയോ അനുയോജ്യമായ ജൈവ/രാസ കീടനാശിനികളോ തളിക്കുക.`,
+    Marathi: `🌱 **Agro AI कृषी सल्ला**\n\n1. **माती व ओलावा व्यवस्थापन:** शेतातील ओलाव्यानुसार संतुलित पाणी व्यवस्थापन करा.\n2. **संतुलित खत व्यवस्थापन:** माती परीक्षणानुसार NPK आणि सूक्ष्म अन्नद्रव्यांचा वापर करा.\n3. **एकीकृत कीड नियंत्रण:** सुरुवातीच्या काळात निंबोळी अर्क किंवा शिफारस केलेली औषधे फवारा.`,
+    Gujarati: `🌱 **Agro AI કૃષિ સલાહ**\n\n1. **જમીન અને ભેજ વ્યવસ્થાપન:** ખેતરમાં ભેજ મુજબ સંતુલિત પિયત આપો.\n2. **સંતુલિત ખાતર વ્યવસ્થા:** જમીન ચકાસણી મુજબ NPK અને સૂક્ષ્મ પોષકતત્વો આપો.\n3. **સંકલિત જીવાત નિયંત્રણ:** શરૂઆતના તબક્કે લીમડાનું તેલ અથવા ભલામણ કરેલ દવાઓનો છંટકાવ કરો.`,
+    Bengali: `🌱 **Agro AI কৃষি পরামর্শ**\n\n1. **মাটি ও আর্দ্রতা ব্যবস্থাপনা:** মাটির আর্দ্রতা অনুযায়ী পরিমিত সেচ প্রদান করুন।\n2. **সুষম সার প্রয়োগ:** মাটি পরীক্ষার ভিত্তিতে NPK এবং অণু-পুষ্টি উপাদান প্রয়োগ করুন।\n3. **সমন্বিত বালাই দমন:** প্রাথমিক পর্যায়ে নিম তেল বা সুপারিশকৃত কীটনাশক স্প্রে করুন।`,
+    Punjabi: `🌱 **Agro AI ਖੇਤੀਬਾੜੀ ਸਲਾਹ**\n\n1. **ਮਿੱਟੀ ਅਤੇ ਨਮੀ ਪ੍ਰਬੰਧਨ:** ਖੇਤ ਦੀ ਨਮੀ ਅਨੁਸਾਰ ਸੰਤੁਲਿਤ ਸਿੰਚਾਈ ਕਰੋ।\n2. **ਸੰਤੁਲਿਤ ਖਾਦਾਂ:** ਮਿੱਟੀ ਪਰਖ ਦੇ ਆਧਾਰ 'ਤੇ NPK ਅਤੇ ਸੂਖਮ ਤੱਤਾਂ ਦੀ ਵਰਤੋਂ ਕਰੋ।\n3. **ਕੀੜਿਆਂ ਦੀ ਰੋਕਥਾਮ:** ਸ਼ੁਰੂਆਤੀ ਪੜਾਅ 'ਤੇ ਨਿੰਮ ਦੇ ਤੇਲ ਜਾਂ ਸਿਫਾਰਸ਼ ਕੀਤੀਆਂ ਦਵਾਈਆਂ ਦਾ ਛਿੜਕਾਅ ਕਰੋ।`,
+    Odia: `🌱 **Agro AI କୃଷି ପରାମର୍ଶ**\n\n1. **ମାଟି ଓ ଆର୍ଦ୍ରତା ପରିଚାଳନା:** ଜମିର ଆର୍ଦ୍ରତା ଅନୁସାରେ ସନ୍ତୁଳିତ ଜଳସେଚନ କରନ୍ତୁ।\n2. **ସନ୍ତୁଳିତ ସାର ପ୍ରୟୋଗ:** ମାଟି ପରୀକ୍ଷା ଆଧାରରେ NPK ଏବଂ ଅଣୁ-ପୋଷକ ତତ୍ତ୍ୱ ପ୍ରୟୋଗ କରନ୍ତୁ।\n3. **ସମନ୍ୱିତ କୀଟ ପରିଚାଳନା:** ପ୍ରାରମ୍ଭିକ ଅବସ୍ଥାରେ ନିମ୍ବ ତେଲ ବା ଉପଯୁକ୍ତ କୀଟନାଶକ ପ୍ରୟୋଗ କରନ୍ତୁ।`,
+    Assamese: `🌱 **Agro AI কৃষি পৰামৰ্শ**\n\n1. **মাটি আৰু আৰ্দ্ৰতা ব্যৱস্থাপনা:** পথাৰৰ আৰ্দ্ৰতা অনুসৰি পৰিমিত জলসিঞ্চন কৰক।\n2. **সুষম সাৰ প্ৰয়োগ:** মাটি পৰীক্ষাৰ ভিত্তিত NPK আৰু অণুপোষক উপাদান ব্যৱহাৰ কৰক।\n3. **কীট-পতংগ নিয়ন্ত্ৰণ:** প্ৰাৰম্ভিক পৰ্যায়ত নিম তেল বা অনুমোদিত কীটনাশক ছটিওৱা ভাল।`,
+    Urdu: `🌱 **Agro AI زرعی مشورہ**\n\n1. **مٹی اور نمی کی دیکھ بھال:** کھیت کی نمی کے مطابق متوازن آبپاشی کریں۔\n2. **متوازن کھاد کا استعمال:** مٹی کے ٹیسٹ کی بنیاد پر NPK اور دیگر غذائی اجزاء فراہم کریں۔\n3. **کیڑوں سے تحفظ:** ابتدائی مرحلے میں نیم کا تیل یا مناسب کیڑے مار ادویات کا سپرے کریں۔`,
+  };
+
   if (diseasePrediction?.label) {
     const label = diseasePrediction.label.replaceAll("___", " — ").replaceAll("_", " ");
     const conf = diseasePrediction.confidence || 92;
@@ -29,6 +44,9 @@ function getSmartAgriResponse(query, language, hasImage, diseasePrediction) {
     }
     if (language === "Hindi") {
       return `🌱 **फसल रोग पहचान परिणाम**\n\n- **पहचाना गया रोग:** ${label}\n- **विश्वास स्तर:** ${conf}%\n\n**सुझाए गए उपचार उपाय:**\n1. **जैविक उपचार:** 1 लीटर पानी में 5 मिली नीम का तेल मिलाकर शाम के समय छिड़काव करें।\n2. **रासायनिक उपचार:** गंभीर स्थिति में कॉपर ऑक्सीक्लोराइड (3 ग्राम/लीटर) या मैंकोजेब (2.5 ग्राम/लीटर) का छिड़काव करें।\n3. **रोकथाम:** खेत में जल निकासी की उचित व्यवस्था रखें और प्रभावित पत्तियों को हटाकर नष्ट करें।`;
+    }
+    if (generalAdvisories[language]) {
+      return `🌱 **${label}** (${conf}%)\n\n${generalAdvisories[language]}`;
     }
     return `🌱 **Crop Health Diagnostics Result**\n\n- **Identified Condition:** ${label}\n- **Confidence Score:** ${conf}%\n\n**Recommended Agronomic Action Plan:**\n1. **Organic Management:** Spray cold-pressed Neem Oil (5ml/L of water) with a mild surfactant during early morning or late evening.\n2. **Targeted Treatment:** If fungal lesions or blight are extensive, apply Mancozeb (2.5g/L) or Copper Oxychloride (3g/L).\n3. **Preventive Sanitation:** Prune severely infected lower leaves, ensure optimal row spacing for ventilation, and avoid overhead sprinkler watering.`;
   }
@@ -40,24 +58,14 @@ function getSmartAgriResponse(query, language, hasImage, diseasePrediction) {
     if (language === "Hindi") {
       return `🌱 **पत्ती विश्लेषण और कृषि सलाह**\n\nतस्वीर में पत्ती पर धब्बे और पीलापन दिख रहा है। यह आमतौर पर फंगल संक्रमण (Leaf Spot/Blight) या सूक्ष्म पोषक तत्वों की कमी के कारण होता है।\n\n**उपचार:**\n1. **जैविक:** नीम का तेल (5 मिली/लीटर) का छिड़काव करें।\n2. **फफूंदनाशक:** साफ (SAAF - कार्बेन्डाजिम + मैंकोजेब) 2 ग्राम प्रति लीटर पानी में मिलाकर छिड़कें।\n3. **पोषण:** 19:19:19 NPK का पर्णीय छिड़काव करें ताकि फसल जल्द हरी-भरी हो सके।`;
     }
+    if (generalAdvisories[language]) {
+      return generalAdvisories[language];
+    }
     return `🌱 **Leaf Image Inspection & Crop Advisory**\n\nVisual analysis indicates characteristic symptoms of Foliar Blight / Leaf Spot with localized chlorosis (yellowing).\n\n**Immediate Action Plan:**\n1. **Organic Spray:** Apply Neem Kernel Extract or 10,000 ppm Neem Oil (5ml/L) to suppress spore germination.\n2. **Fungicidal Treatment:** If spreading rapidly, apply SAAF (Carbendazim 12% + Mancozeb 63% WP) at 2g/L of water.\n3. **Nutritional Support:** Foliar spray of balanced water-soluble NPK (19:19:19 at 5g/L) to stimulate fresh root and shoot growth.`;
   }
 
-  if (q.includes("tomato") || q.includes("టమోటా") || q.includes("टमाटर")) {
-    if (language === "Telugu") {
-      return `🍅 **టమోటా పంట సాగు మరియు తెగుళ్ల నిర్వహణ**\n\n1. **ఎరువుల మోతాదు:** ఎకరానికి 50 కిలోల DAP, 25 కిలోల పొటాష్, 30 కిలోల యూరియాను వేర్వేరు దశల్లో వేయండి.\n2. **ఆకుముడత మరియు తెల్లదోమ నివారణ:** ఎసిటామిప్రిడ్ 0.5 గ్రా లేదా ఇమిడాక్లోప్రిడ్ 0.3 మి.లీ/లీటరు పిచికారీ చేయండి.\n3. **నీటిపారుదల:** డ్రిప్ పద్ధతిలో 2-3 రోజులకు ఒకసారి తేలికపాటి నీరు ఇవ్వండి.`;
-    }
-    if (language === "Hindi") {
-      return `🍅 **टमाटर की फसल और कीट प्रबंधन**\n\n1. **उर्वरक प्रबंधन:** प्रति एकड़ 50 किग्रा DAP, 25 किग्रा पोटाश और 30 किग्रा यूरिया विभिन्न चरणों में दें।\n2. **पत्ता मरोड़ व सफेद मक्खी:** इमिडाक्लोप्रिड 0.3 मिली या एसिटामिप्रिड 0.5 ग्राम प्रति लीटर पानी में छिड़कें।\n3. **सिंचाई:** ड्रिप सिंचाई द्वारा 2-3 दिनों के अंतराल पर हल्की सिंचाई करें।`;
-    }
-    return `🍅 **Tomato Crop Management & Pest Control**\n\n1. **Fertilizer Schedule:** Apply 50kg DAP, 25kg MOP (Potash), and split urea dosages (30kg) during vegetative and fruit-bearing stages.\n2. **Pest Control (Whitefly/Leaf Curl):** Spray Imidacloprid 17.8% SL (0.3ml/L) or Acetamiprid (0.5g/L).\n3. **Blight Prevention:** Ensure stake support to keep foliage off moist soil and apply Mancozeb (2.5g/L) proactively.`;
-  }
-
-  if (language === "Telugu") {
-    return `🌱 **Agro AI వ్యవసాయ సలహా**\n\nమీ ప్రశ్నకు సంబంధించి ముఖ్యమైన వ్యవసాయ సూచనలు:\n\n1. **నేల మరియు తేమ నిర్వహణ:** మీ పొలంలో తేమ శాతాన్ని బట్టి సమతుల్యంగా నీటిపారుదల అందించండి.\n2. **సమతుల్య ఎరువులు:** నేల పరీక్ష ఆధారంగా NPK మరియు సూక్ష్మ పోషకాలను అందించండి.\n3. **సమగ్ర సస్యరక్షణ:** తెగుళ్లు ఆరంభ దశలో ఉన్నప్పుడే వేప ద్రావణం లేదా తగిన సేంద్రీయ/రసాయన మందులు పిచికారీ చేయండి.`;
-  }
-  if (language === "Hindi") {
-    return `🌱 **Agro AI कृषि सलाह**\n\nआपके प्रश्न के लिए मुख्य कृषि दिशानिर्देश:\n\n1. **मृदा एवं नमी प्रबंधन:** खेत में नमी के अनुसार संतुलित सिंचाई करें।\n2. **संतुलित उर्वरक:** मिट्टी परीक्षण के आधार पर NPK और सूक्ष्म पोषक तत्वों का प्रयोग करें।\n3. **एकीकृत कीट प्रबंधन:** प्रारंभिक अवस्था में जैविक उपचार (नीम तेल) और अनुशंसित कीटनाशक का प्रयोग करें।`;
+  if (generalAdvisories[language]) {
+    return generalAdvisories[language];
   }
   return `🌱 **Agro AI Agricultural Advisory**\n\nKey agronomic best practices:\n\n1. **Soil & Moisture Management:** Regulate irrigation cycles based on current weather forecasts and soil drainage.\n2. **Balanced Nutrition:** Apply balanced NPK along with secondary micronutrients (Zinc, Sulphur, Boron).\n3. **Integrated Pest Management (IPM):** Combine biological repellents (Neem extracts) with targeted fungicides for sustainable crop protection.`;
 }
@@ -116,7 +124,21 @@ router.post(
     const message = req.body.message?.trim() || "";
     const image = req.file;
 
-    const allowedLanguages = ["English", "Telugu", "Hindi"];
+    const allowedLanguages = [
+      "English",
+      "Hindi",
+      "Telugu",
+      "Tamil",
+      "Kannada",
+      "Malayalam",
+      "Marathi",
+      "Gujarati",
+      "Bengali",
+      "Punjabi",
+      "Odia",
+      "Assamese",
+      "Urdu",
+    ];
     const language = allowedLanguages.includes(req.body.language)
       ? req.body.language
       : "English";
@@ -301,9 +323,22 @@ router.get("/tts", async (req, res) => {
       return res.status(400).json({ message: "Text query parameter is required." });
     }
 
-    let tl = "en";
-    if (lang === "Telugu") tl = "te";
-    else if (lang === "Hindi") tl = "hi";
+    const ttsLangMap = {
+      English: "en",
+      Hindi: "hi",
+      Telugu: "te",
+      Tamil: "ta",
+      Kannada: "kn",
+      Malayalam: "ml",
+      Marathi: "mr",
+      Gujarati: "gu",
+      Bengali: "bn",
+      Punjabi: "pa",
+      Odia: "or",
+      Assamese: "as",
+      Urdu: "ur",
+    };
+    const tl = ttsLangMap[lang] || "en";
 
     const cleanText = text
       .replace(/\*\*(.*?)\*\*/g, "$1")
